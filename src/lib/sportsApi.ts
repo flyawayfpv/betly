@@ -1,24 +1,27 @@
+// src/lib/sportsApi.ts
+
 export async function sportsApi(
-    endpoint: string,
-    params: Record<string, string | number> = {}
-  ) {
-    const url = new URL(`https://api.sportapi.ai${endpoint}`);
-  
-    Object.entries(params).forEach(([key, value]) =>
-      url.searchParams.append(key, String(value))
-    );
-  
-    const res = await fetch(url.toString(), {
-      headers: {
-        "Authorization": process.env.SPORTAPI_KEY!,
-        "Content-Type": "application/json",
-      }
-    });
-  
-    if (!res.ok) {
-      throw new Error(`SportAPI Error ${res.status}: ${await res.text()}`);
+  endpoint: string,
+  params: Record<string, string | number | string[]> = {}
+) {
+  const url = new URL(`https://www.balldontlie.io/api/v1${endpoint}`);
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach(v => url.searchParams.append(`${key}[]`, String(v)));
+    } else {
+      url.searchParams.append(key, String(value));
     }
-  
-    return res.json();
+  });
+
+  console.log("➡️ Requesting:", url.toString());
+
+  const res = await fetch(url.toString());
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`balldontlie ${res.status}: ${text}`);
   }
-  
+
+  return res.json();
+}
